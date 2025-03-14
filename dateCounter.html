@@ -1,0 +1,123 @@
+<meta name="color-scheme" content="dark">
+<!-- Add a button to start the counting and one to pause it-->
+ <!-- Add text. Mabe inside script?-->
+
+<h1 id="currentDate"> </h1>
+
+<script>
+//Creating an array to store the months. The months have an indexnumber from 0-11
+var months = ["January", "February", "March", "April", "May", "June",
+"July", "August", "September", "October", "November", "December"];
+//Creating an array to apply dayCaps to the months with the same index
+var dayCap = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var i = 0;
+var year = 2025; //Startyear
+var day = 1; //Startday
+
+//RED DAYS
+var redDays = ["January-1", "January-6", "May-1", "June-6", "November-1", "December-25", "December-26", "EasterDay", "EasterMonday", "GoodFriday"];
+var sundayCounter = 3; //An integer that
+
+
+PrintDate();
+setInterval(Update, 100);
+
+function Update() 
+{
+    Easter();
+    
+    if(year % 4 == 0) //Checks if the year is a leap year.
+    {
+        dayCap[1] = 29; //Changes the information of the second object in the array (February).
+
+        DayChanger();
+
+        dayCap[1] = 28; //Changes the information of the second object in the array (February) back to its original values        
+    }  
+    else
+    {
+        DayChanger();
+    } 
+    PrintDate();
+}
+
+
+function DayChanger() //Controls the changing of the day
+{
+    sundayCounter++;
+    if(day < dayCap[i]) //Checks if the day is less than the months day cap and then adds 1 to the day.
+    {
+        day++;
+    }
+    else if(day == dayCap[i]) //Checks if the day has reached the months day cap.
+    {
+        MonthChanger();
+    }
+}
+
+function MonthChanger() //Controls the changing of the month and year.
+{
+    if(i == months.length - 1) //Checks if the index has reached the amount of elements in the arrays then resets the day and the month and adds 1 to the year. 
+    {
+        day = 1;
+        i = 0;
+        year++;
+        ResetRedDays();
+        console.log(year + "-" + months[0] + "-" + 1);    
+    }
+    else //Resets the days and changes to the next month. 
+    {
+        day = 1;
+        i++;
+    }
+}
+
+function PrintDate() //Controls what is shown on the screen
+{
+    var output = document.getElementById("currentDate");
+    var currentDate = year + "-" + months[i] + "-" + day;
+
+    if(sundayCounter % 7 == 0 || redDays.includes(currentDate.slice(5))) 
+    { //Checks if the date is a Sunday or is included in the redDay array and changes the color of the text to red.
+        //console.log(currentDate + " is a red day!");
+        output.style.color = "red";
+        output.innerHTML = currentDate;  
+    }
+    else
+    {
+        output.style.color = "white"; //Resets the color of the text back to white.
+        output.innerHTML = currentDate;
+    }
+}
+
+function Easter() //Controls when Easter is occuring by using Gauss easter formula
+{
+    console.log("Checking for Easter")
+    var a = year % 19
+    var b = year % 4
+    var c = year % 7
+    var d = (19*a + 24) % 30
+    var e = (2*b + 4*c + 6*d + 5) % 7
+
+    
+    if(d + e > 9)
+    {
+        redDays[redDays.indexOf("EasterDay")] = (d+e-9) + "-April"; 
+        redDays[redDays.indexOf("EasterMonday")] = (d+e-9+1) + "-April";
+        redDays[redDays.indexOf("GoodFriday")] = (d+e-9-2) + "-April";
+    }
+    else
+    {
+        redDays[redDays.indexOf("EasterDay")] = (22+d+e) + "-March";
+        redDays[redDays.indexOf("EasterMonday")] = (22+d+e+1) + "-March";
+        redDays[redDays.indexOf("GoodFriday")] = (22+d+e-2) + "-March";
+    }
+    //These finds the index of the holliday and changes the name to whatever date the holliday is occuring on
+}
+
+function ResetRedDays()
+{
+    redDays.splice(7, 3);
+    redDays.push("EasterDay", "EasterMonday", "GoodFriday");
+}
+</script>
