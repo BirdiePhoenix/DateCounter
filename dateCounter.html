@@ -10,21 +10,21 @@ var months = ["January", "February", "March", "April", "May", "June",
 "July", "August", "September", "October", "November", "December"];
 //Creating an array to apply dayCaps to the months with the same index
 var dayCap = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var i = 0;
+var i = 5;
 var year = 2025; //Startyear
 var day = 1; //Startday
 
 //RED DAYS
-var redDays = ["January-1", "January-6", "May-1", "June-6", "November-1", "December-25", "December-26", "EasterDay", "EasterMonday", "GoodFriday"];
-var sundayCounter = 3; //An integer that
+var redDays = ["January-1", "January-6", "May-1", "June-6", "November-1", "December-25", "December-26", "EasterDay", "EasterMonday", "GoodFriday", "ChristsAscension", "MidsummerDay"];
+var sundayCounter = 7; //A counter that keeps track of the Sundays. It's equal to 3 because year 2025 starts on a Wednesday(3rd day of the week)
 
 
 PrintDate();
-setInterval(Update, 100);
+setInterval(Update, 300);
 
 function Update() 
 {
-    Easter();
+    Easter(); //Activate the Easter function to change the elements in reDays.
     
     if(year % 4 == 0) //Checks if the year is a leap year.
     {
@@ -45,6 +45,7 @@ function Update()
 function DayChanger() //Controls the changing of the day
 {
     sundayCounter++;
+    MidsummerDay();
     if(day < dayCap[i]) //Checks if the day is less than the months day cap and then adds 1 to the day.
     {
         day++;
@@ -74,23 +75,26 @@ function MonthChanger() //Controls the changing of the month and year.
 
 function PrintDate() //Controls what is shown on the screen
 {
-    var output = document.getElementById("currentDate");
+    var output = document.getElementById("currentDate"); //Gets the HTML-text ID
     var currentDate = year + "-" + months[i] + "-" + day;
 
     if(sundayCounter % 7 == 0 || redDays.includes(currentDate.slice(5))) 
     { //Checks if the date is a Sunday or is included in the redDay array and changes the color of the text to red.
         //console.log(currentDate + " is a red day!");
         output.style.color = "red";
-        output.innerHTML = currentDate;  
+        output.innerHTML = currentDate;
+        console.log(currentDate);  
     }
     else
     {
         output.style.color = "white"; //Resets the color of the text back to white.
         output.innerHTML = currentDate;
+        console.log(currentDate);
     }
 }
 
-function Easter() //Controls when Easter is occuring by using Gauss easter formula
+//RED DAY FUNCTIONS
+function Easter() //Controls when Easter is occuring by using Gauss easter formula: https://mattelararen.com/2016/03/27/gauss-paskformel/
 {
     console.log("Checking for Easter")
     var a = year % 19
@@ -99,25 +103,103 @@ function Easter() //Controls when Easter is occuring by using Gauss easter formu
     var d = (19*a + 24) % 30
     var e = (2*b + 4*c + 6*d + 5) % 7
 
-    
     if(d + e > 9)
     {
-        redDays[redDays.indexOf("EasterDay")] = (d+e-9) + "-April"; 
-        redDays[redDays.indexOf("EasterMonday")] = (d+e-9+1) + "-April";
-        redDays[redDays.indexOf("GoodFriday")] = (d+e-9-2) + "-April";
+    //EASTER DAY
+        redDays[redDays.indexOf("EasterDay")] = "April-" + (d+e-9); 
+    //EASTER MONDAY
+        redDays[redDays.indexOf("EasterMonday")] = "April-" + (d+e-9+1); //Add 1 to the day to get the day of EasterMonday
+    //GOOD FRIDAY (GF)
+        //To calculate the day of GF we only subtract 2 from the day of ED. If the sum is equal or less than 0 we do following:
+        if(d+e-9-2 <= 0) //If ED(easter day) is the 1 or 2 of April GF will be in March
+        {
+            redDays[redDays.indexOf("GoodFriday")] = "March-" + (Number(dayCap[2]) - (Math.abs(d+e-9-2)));   
+        }
+        else //Else GF will be in April
+        {
+            redDays[redDays.indexOf("GoodFriday")] = "April-" + (d+e-9-2);
+        }
+        
+    //CHRISTS ASCENSION
+        ChristsAscension();     
     }
     else
     {
-        redDays[redDays.indexOf("EasterDay")] = (22+d+e) + "-March";
-        redDays[redDays.indexOf("EasterMonday")] = (22+d+e+1) + "-March";
-        redDays[redDays.indexOf("GoodFriday")] = (22+d+e-2) + "-March";
+    //EASTER DAY
+        redDays[redDays.indexOf("EasterDay")] = "March-" + (22+d+e);
+    //EASTER MONDAY (EM)
+        //To calculate the day of EM we add 1 to the day of ED. If the sum is larger than the amount of days in March we do the following:
+        if(22+d+e+1 > Number(dayCap[2])) //If ED is the last of March EM will be 1 of April
+        {
+            redDays[redDays.indexOf("EasterMonday")] = "April-1";     
+        }
+        else //Else EM will be in March
+        {
+            redDays[redDays.indexOf("EasterMonday")] = "March-" + (22+d+e+1);
+        }
+    //GOOD FRIDAY
+        redDays[redDays.indexOf("GoodFriday")] =  "March-" + (22+d+e-2);
+        
+    //CHRISTS ASCENSION
+        ChristsAscension();          
     }
-    //These finds the index of the holliday and changes the name to whatever date the holliday is occuring on
+}
+
+function ChristsAscension()
+{
+    var a = year % 19
+    var b = year % 4
+    var c = year % 7
+    var d = (19*a + 24) % 30
+    var e = (2*b + 4*c + 6*d + 5) % 7
+    //(ED variables)
+
+    if(d + e > 9) //If easter day is in APRIL
+    {
+        if(39-(Number(dayCap[3]) - (d+e-9)) > Number(dayCap[4])) 
+        { 
+            redDays[redDays.indexOf("ChristsAscension")] = "June-" + ((39 - (Number(dayCap[3]) - (d+e-9))) - Number(dayCap[4]));
+            console.log("ChristsAscension is the " + year + "-" + redDays[10]);
+        }
+        else
+        {
+            redDays[redDays.indexOf("ChristsAscension")] = "May-" + (39-(Number(dayCap[3]) - (d+e-9)));
+            console.log("ChristsAscension is the " + year + "-" + redDays[10]);
+        }
+        //CA(Christ's Ascension) is 39 days after ED(easter day). Calculate how many days are left of APRIL after ED then remove that from 39.
+        //If the sum is bigger than 31(days in MAY) it means CA will be in JUNE therefore we have to remove both the sum and the amount of days in MAY from 39 to get the day.
+        //Otherwise CA will be in MAY and we only need to remove the sum from 39 to get the day.
+    }
+    else //If easter day is in MARCH
+    {
+        if(39-(Number(dayCap[2]) - (22+d+e)) > Number(dayCap[3]))
+        {
+            redDays[redDays.indexOf("ChristsAscension")] = "May-" + (39 - (Number(dayCap[2] - (22+d+e))) - Number(dayCap[3]));
+            console.log("ChristsAscension is the " + year + "-" + redDays[10]);
+        }
+        else
+        {
+            redDays[redDays.indexOf("ChristsAscension")] = "April-" + (39-(Number(dayCap[2]) - (d+e-9))); 
+            console.log("ChristsAscension is the " + year + "-" + redDays[10]);
+        } 
+        //CA(Christ's Ascension) is 39 days after ED(easter day). Calculate how many days are left of MARCH after ED then remove that from 39.
+        //If the sum is bigger than 30(days in APRIL) it means CA will be in MAY therefore we have to remove both the sum and the amount of days in APRIL from 39 to get the day. 
+        //Otherwise CA will be in APRIL and we only need to remove the sum from 39 to get the day.
+    }
+}
+
+function MidsummerDay() //This does not completly work. The array changes but not the color of the txt
+{
+    if((sundayCounter-1) % 7 == 6 && day <= 26 && day >=20 && i==5)
+    {
+        redDays[redDays.indexOf("MidsummerDay")] = "June-" + day;
+        console.log("In " + year + " Midsummer day is " + "June-" + day);
+    }
 }
 
 function ResetRedDays() //This resets the red day elements to their original names so that the Easter function can find them again
 {
-    redDays.splice(7, 3);
-    redDays.push("EasterDay", "EasterMonday", "GoodFriday");
+    redDays.splice(7, 5);
+    redDays.push("EasterDay", "EasterMonday", "GoodFriday", "ChristsAscension", "MidsummerDay");
 }
 </script>
