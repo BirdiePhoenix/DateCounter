@@ -10,13 +10,14 @@ var months = ["January", "February", "March", "April", "May", "June",
 "July", "August", "September", "October", "November", "December"];
 //Creating an array to apply dayCaps to the months with the same index
 var dayCap = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-var i = 5;
+var i = 0;
 var year = 2025; //Startyear
 var day = 1; //Startday
 
 //RED DAYS
-var redDays = ["January-1", "January-6", "May-1", "June-6", "November-1", "December-25", "December-26", "EasterDay", "EasterMonday", "GoodFriday", "ChristsAscension", "MidsummerDay"];
-var sundayCounter = 7; //A counter that keeps track of the Sundays. It's equal to 3 because year 2025 starts on a Wednesday(3rd day of the week)
+var redDays = ["January-1", "January-6", "May-1", "June-6", "November-1", "December-25", "December-26", //Fixed dates
+                "EasterDay", "EasterMonday", "GoodFriday", "ChristsAscension", "MidsummerDay"]; //Moving dates
+var sundayCounter = 3; //A counter that keeps track of the Sundays. It's equal to 3 because year 2025 starts on a Wednesday(3rd day of the week)
 
 
 PrintDate();
@@ -37,7 +38,8 @@ function Update()
     else
     {
         DayChanger();
-    } 
+    }
+    MidsummerDay(); 
     PrintDate();
 }
 
@@ -45,7 +47,7 @@ function Update()
 function DayChanger() //Controls the changing of the day
 {
     sundayCounter++;
-    MidsummerDay();
+    
     if(day < dayCap[i]) //Checks if the day is less than the months day cap and then adds 1 to the day.
     {
         day++;
@@ -80,7 +82,6 @@ function PrintDate() //Controls what is shown on the screen
 
     if(sundayCounter % 7 == 0 || redDays.includes(currentDate.slice(5))) 
     { //Checks if the date is a Sunday or is included in the redDay array and changes the color of the text to red.
-        //console.log(currentDate + " is a red day!");
         output.style.color = "red";
         output.innerHTML = currentDate;
         console.log(currentDate);  
@@ -188,9 +189,11 @@ function ChristsAscension()
     }
 }
 
-function MidsummerDay() //This does not completly work. The array changes but not the color of the txt
+function MidsummerDay() //Adds the date of midsummer day to the redDays array
 {
-    if((sundayCounter-1) % 7 == 6 && day <= 26 && day >=20 && i==5)
+    //Midsummers day is on a saturday betwween 20 and 26 of june. 
+    //By adding 1 to the sundayCounter and using the remainder operator we check if it is a saturday
+    if((sundayCounter+1) % 7 == 0 && day <= 26 && day >=20 && i==5) 
     {
         redDays[redDays.indexOf("MidsummerDay")] = "June-" + day;
         console.log("In " + year + " Midsummer day is " + "June-" + day);
